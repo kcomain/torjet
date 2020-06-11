@@ -1,9 +1,12 @@
 from datetime import datetime
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.triggers.cron import CronTrigger
 from discord import Embed
 from discord.ext.commands import Bot as BotBase
 from discord.ext.commands.errors import CommandNotFound
+from ..db import db
+
 
 
 PREFIX = "t."
@@ -17,6 +20,7 @@ class Bot(BotBase):
         self.guild = None
         self.scheduler = AsyncIOScheduler()
 
+        db.autosave(self.scheduler)
         super().__init__(command_prefix=PREFIX, owner_ids=OWNER_IDS)
 
     def run(self, version):
@@ -28,6 +32,10 @@ class Bot(BotBase):
         print("running bot...")
         super().run(self.TOKEN, reconnect=True)
 
+    async def print_message(self):
+        channel = self.get_channel(715857256813559859)
+        await channel.send("I am a timed notification!")
+
     async def on_connect(self):
         print("Bot connected")
 
@@ -37,7 +45,7 @@ class Bot(BotBase):
     async def on_error(self, err, *args, **kwargs):
         if err == "on_command_error":
             await args[0].send("Something went wrong.")
-        
+
         channel = self.get_channel(715857256813559859)
         await channel.send("An error occured.")
         raise
@@ -52,19 +60,22 @@ class Bot(BotBase):
     async def on_ready(self):
         if not self.ready:
             self.ready = True
-            print("Bot ready")
+            self.scheduler.add_job(self.print_message, CronTrigger(second="0,15,30,45"))
+            self.scheduler.start()
 
             channel = self.get_channel(715857256813559859)
             await channel.send("Now online!")
 
-            embed = Embed(title="Now online!", description="Tojet is now online.",
-                          colour=0xFF0000, timestamp=datetime.utcnow())
-            fields = [("Name", "Value", True),
-                      ("Another field", "This field is next to the other one.", True),
-                      ("A non-inline field", "This field will appear on it's own row.", False)]
-            for name, value, inline in fields:
-                embed.add_field(name=name, value=value, inline=inline)
-            await channel.send(embed=embed)
+            # embed = Embed(title="Now online!", description="Tojet is now online.",
+            #              colour=0xFF0000, timestamp=datetime.utcnow())
+            # fields = [("Name", "Value", True),
+            #          ("Another field", "This field is next to the other one.", True),
+            #          ("A non-inline field", "This field will appear on it's own row.", False)]
+            # for name, value, inline in fields:
+            #    embed.add_field(name=name, value=value, inline=inline)
+            # await channel.send(embed=embed)
+
+            print("Bot ready")
 
         else:
             print("Bot reconnected")
