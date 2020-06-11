@@ -12,7 +12,7 @@ class Log(Cog):
     @Cog.listener()
     async def on_ready(self):
         if not self.bot.ready:
-            self.log_channel = self.bot.get_channel(701380843574394927)
+            self.log_channel = self.bot.get_channel(720729630721703987)
             self.bot.cogs_ready.ready_up("log")
 
     @Cog.listener()
@@ -46,8 +46,7 @@ class Log(Cog):
         if before.avatar_url != after.avatar_url:
             embed = Embed(title="Avatar change",
                           description="New image is below, old to the right.",
-                          colour=self.log_channel.guild.get_member(
-                              after.id).colour,
+                          colour=self.log_channel.guild.get_member(after.id),
                           timestamp=datetime.utcnow())
 
             embed.set_thumbnail(url=before.avatar_url)

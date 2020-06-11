@@ -118,8 +118,8 @@ class Bot(BotBase):
 
 	async def on_ready(self):
 		if not self.ready:
-			self.guild = self.get_guild(698572840248803408)
-			self.log_channel = self.get_channel(715857256813559859)
+			self.guild = self.get_guild(698572840248803408) #698572840248803408 - Guild ID
+			self.log_channel = self.get_channel(715857256813559859) #715857256813559859 - Bot log channel ID
 			self.scheduler.add_job(self.rules_reminder, CronTrigger(day_of_week=0, hour=12, minute=0, second=0))
 			self.scheduler.start()
 
@@ -139,7 +139,7 @@ class Bot(BotBase):
 			while not self.cogs_ready.all_ready():
 				await sleep(0.5)
 
-			await self.stdout.send("Now online!")
+			await self.log_channel.send("Now online!")
 			self.ready = True
 			print(" bot ready")
 
@@ -148,7 +148,7 @@ class Bot(BotBase):
 
 	async def on_message(self, message):
 		if not message.author.bot:
-			await self.process_commands(message)
+			await self.bot.process_commands(message)
 
 
 bot = Bot()
